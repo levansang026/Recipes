@@ -10,21 +10,22 @@ import UIKit
 import RxSwift
 
 final class SearchComponent: NSObject, UISearchResultsUpdating, UISearchBarDelegate {
-    let recipesService: RecipesService
-    let searchController: UISearchController
+    var recipesService: RecipesService
+    var searchController: UISearchController
     let recipeListViewController = RecipeListViewController()
     var task: URLSessionTask?
     private lazy var loadingIndicator: UIActivityIndicatorView = self.makeLoadingIndicator()
     let disposeBag = DisposeBag()
     
-    /// Avoid making lots of requests when user types fast
-    /// This throttles the search requests
-//    let debouncer = Debouncer(delay: 2)
-    
     required init(recipesService: RecipesService) {
         self.recipesService = recipesService
+        recipeListViewController.viewModel = RecipeListViewModel()
         self.searchController = UISearchController(searchResultsController: recipeListViewController)
         super.init()
+        setupViews()
+    }
+    
+    private func setupViews() {
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
         searchController.dimsBackgroundDuringPresentation = true
@@ -37,6 +38,7 @@ final class SearchComponent: NSObject, UISearchResultsUpdating, UISearchBarDeleg
             $0.centerY.equalToSuperview().offset(-100)
         }
     }
+        
     
     /// Add search bar to view controller
     func add(to viewController: UIViewController) {
@@ -59,9 +61,6 @@ final class SearchComponent: NSObject, UISearchResultsUpdating, UISearchBarDeleg
     // MARK: - UISearchBarDelegate
     //debounce
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        debouncer.schedule { [weak self] in
-//            self?.performSearch()
-//        }
         self.performSearch()
     }
     
@@ -78,10 +77,6 @@ final class SearchComponent: NSObject, UISearchResultsUpdating, UISearchBarDeleg
     private func search(query: String) {
         task?.cancel()
         loadingIndicator.startAnimating()
-//        task = recipesService.search(query: query, completion: { [weak self] recipes in
-//            self?.loadingIndicator.stopAnimating()
-//            self?.recipeListViewController.handle(recipes: recipes)
-//        })
         recipesService.search(query: query).subscribe(onNext: { [weak self] recipes in
             DispatchQueue.main.async {
                 self?.loadingIndicator.stopAnimating()

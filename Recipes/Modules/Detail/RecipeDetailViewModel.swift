@@ -13,13 +13,14 @@ class RecipeDetailViewModel {
     
     private let disposeBag = DisposeBag()
     private var recipeService: RecipesService!
+    private var recipeVariable = Variable<Recipe?>(nil)
     private var recipe: Recipe? {
         get {
-            return recipeSubject.
+            return recipeVariable.value
         }
         
         set {
-            
+            recipeVariable.value = newValue
         }
     }
     

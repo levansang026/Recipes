@@ -11,10 +11,8 @@ import RxSwift
 
 final class HomeViewController: UIViewController {
     /// When a recipe get select
-    var select: ((Recipe) -> Void)?
-    
+    var viewModel: HomeViewModel!
     private var refreshControl = UIRefreshControl()
-    private let recipesService: RecipesService
     private let searchComponent: SearchComponent
     private let recipeListViewController = RecipeListViewController()
     let disposeBag = DisposeBag()
@@ -22,7 +20,6 @@ final class HomeViewController: UIViewController {
     // MARK: - Init
     
     required init(recipesService: RecipesService) {
-        self.recipesService = recipesService
         self.searchComponent = SearchComponent(recipesService: recipesService)
         super.init(nibName: nil, bundle: nil)
         self.title = "Recipes"
@@ -36,47 +33,45 @@ final class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setup()
-        setupSearch()
+        setupBindings()
         loadData()
     }
     
     // MARK: - Setup
-    
     private func setup() {
-        recipeListViewController.adapter.select = select
+        recipeListViewController.viewModel = RecipeListViewModel()
         add(childViewController: recipeListViewController)
         recipeListViewController.collectionView.addSubview(refreshControl)
         refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        
+        searchComponent.add(to: self)
     }
     
-    private func setupSearch() {
-        searchComponent.add(to: self)
-        searchComponent.recipeListViewController.adapter.select = select
+    private func setupBindings() {
+        Observable.merge(recipeListViewController.adapter.selectItemSubject, searchComponent.recipeListViewController.adapter.selectItemSubject).subscribe({ [weak self] event in
+            self?.viewModel.selectItemSubject.onNext(event.element)
+        }).disposed(by: disposeBag)
+        
+        recipeListViewController
+            .viewModel.recipesVariable
+            .asObservable().subscribe(onNext: { [weak self] recipes in
+                DispatchQueue.main.async {
+                    self?.refreshControl.endRefreshing()
+                }
+            }, onError: { error in
+                print(error.localizedDescription)
+            }).disposed(by: disposeBag)
     }
     
     // MARK: - Action
-    
     @objc private func refresh() {
         loadData()
     }
     
     // MARK: - Data
-    
     private func loadData() {
         refreshControl.beginRefreshing()
-        recipesService.fetchTopRating().subscribe(onNext: { [weak self] recipes in
-            DispatchQueue.main.async {
-                self?.recipeListViewController.handle(recipes: recipes)
-                self?.refreshControl.endRefreshing()
-            }
-            }, onError: { error in
-                print(error.localizedDescription)
-        }).disposed(by: disposeBag)
-//        recipesService.fetchTopRating(completion: { [weak self] recipes in
-//            self?.recipeListViewController.handle(recipes: recipes)
-//            self?.refreshControl.endRefreshing()
-//        })
+        recipeListViewController.viewModel.fetchTopRating()
     }
 }

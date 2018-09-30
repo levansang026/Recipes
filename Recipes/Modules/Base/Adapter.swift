@@ -7,13 +7,14 @@
 //
 
 import UIKit
+import RxSwift
 
 /// A generic adapter to act as convenient DataSource and Delegate for UICollectionView
 final class Adapter<T, Cell: UICollectionViewCell>: NSObject,
 UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     var items: [T] = []
     var configure: ((T, Cell) -> Void)?
-    var select: ((T) -> Void)?
+    var selectItemSubject = PublishSubject<T>()
     var cellHeight: CGFloat = 100
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -34,7 +35,7 @@ UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let item = items[indexPath.item]
-        select?(item)
+        selectItemSubject.onNext(item)
     }
     
     func collectionView(

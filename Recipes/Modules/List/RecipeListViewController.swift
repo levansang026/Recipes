@@ -53,8 +53,8 @@ final class RecipeListViewController: UIViewController {
     }
     
     func setupBindings() {
-        viewModel.recipesVariable.asObservable().subscribe(onNext: { [weak self] recipes in
-            
+        viewModel.recipesVariable.asObservable()
+            .skip(1).subscribe(onNext: { [weak self] recipes in
             self?.adapter.items = recipes
             DispatchQueue.main.async {
                 self?.collectionView.reloadData()
@@ -62,7 +62,6 @@ final class RecipeListViewController: UIViewController {
                     self?.emptyView.alpha = recipes.isEmpty ? 1 : 0
                 })
             }
-            
         }).disposed(by: disposeBag)
     }
     

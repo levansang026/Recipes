@@ -7,7 +7,9 @@
 //
 
 import UIKit
+import RxSwift
 
 final class HomeViewModel {
     
+    var selectItemSubject = PublishSubject<Recipe?>()
 }

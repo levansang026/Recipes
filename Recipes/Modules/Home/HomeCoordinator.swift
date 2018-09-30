@@ -7,11 +7,13 @@
 //
 
 import UIKit
+import RxSwift
 
 class HomeCoordinator: Coordinator {
     private let presenter: UINavigationController
     private var homeController: HomeViewController?
     private var detailCoordinator: DetailCoordinator?
+    private let disposeBag = DisposeBag()
     
     init(presenter: UINavigationController) {
         self.presenter = presenter
@@ -20,11 +22,14 @@ class HomeCoordinator: Coordinator {
     func start() {
         let service = RecipesService(networking: NetworkService())
         homeController = HomeViewController(recipesService: service)
+        homeController?.viewModel = HomeViewModel()
         guard let homeController = homeController else { return }
         
-        homeController.select = { [weak self] recipe in
-            self?.didSelect(recipe: recipe)
-        }
+        homeController.viewModel.selectItemSubject.subscribe(onNext: { [weak self] recipe in
+            if let recipe = recipe {
+                self?.didSelect(recipe: recipe)
+            }
+        }).disposed(by: disposeBag)
         
         presenter.pushViewController(homeController, animated: true)
     }
