@@ -1,0 +1,36 @@
+PODS:
+  - R.swift (4.0.0):
+    - R.swift.Library (~> 4.0.0)
+  - R.swift.Library (4.0.0)
+  - RxSwift (4.3.1)
+  - SnapKit (4.0.1)
+  - SwiftHash (2.0.2)
+  - SwiftLint (0.27.0)
+
+DEPENDENCIES:
+  - R.swift
+  - RxSwift
+  - SnapKit
+  - SwiftHash
+  - SwiftLint (~> 0.25)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - R.swift
+    - R.swift.Library
+    - RxSwift
+    - SnapKit
+    - SwiftHash
+    - SwiftLint
+
+SPEC CHECKSUMS:
+  R.swift: d6a5ec2f55a8441dc0ed9f1f8b37d7d11ae85c66
+  R.swift.Library: c3af34921024333546e23b70e70d0b4e0cffca75
+  RxSwift: fe0fd770a43acdb7d0a53da411c9b892e69bb6e4
+  SnapKit: 0de968a9fec17499afa29683b05d0c775b6d1c29
+  SwiftHash: 6d312abe61c8359bdef8d0093642f3a70b1c17ba
+  SwiftLint: 3207c1faa2240bf8973b191820a116113cd11073
+
+PODFILE CHECKSUM: dda4d69419a1533edeafb107d010dba5f7502c6d
+
+COCOAPODS: 1.5.3
